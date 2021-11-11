@@ -16,7 +16,7 @@ export async function mailService(email:string,userName:string,password:string) 
         await transporter.sendMail({
             from: process.env.AUTH_USERNAME,
             to: email,
-            subject: 'Email From New Creation',
+            subject: 'Email From New Creation', 
             text: "you are successfully register in New Creation\n"+`your userName & password for login is userName:${userName},password:${password}`
         });
     } catch(e) {

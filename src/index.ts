@@ -5,6 +5,7 @@ import product from "./routes/product";
 import cart from "./routes/cart";
 import order from "./routes/order";
 import flash from "express-flash";
+import stripe from "./routes/stripe";
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser')
@@ -27,14 +28,16 @@ app.use(
     })
   );
 app.use(flash());
+app.use('/static', express.static('public'));
 // app.use('/api/users', user);
 // app.use('/api/products', product);
 // app.use('/api/cart', cart);
 // app.use('/api/order', order);
 app.use('/', user);
-app.use('/api/products', product);
-app.use('/api/cart', cart);
+app.use('/', product);
+app.use('/', cart);
 app.use('/api/order', order);
+app.use('/', stripe);
 
 //start the server
 const server = app.listen(process.env.PORT || 3000, () =>

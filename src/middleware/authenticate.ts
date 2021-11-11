@@ -56,9 +56,17 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 }
 
 export function unauthenticate(req: Request, res: Response, next: NextFunction) {
-  if (req.cookies.auth) {
-    next();
-  } else {
+  try {
+    let decoded: Payload | any = jwt.verify(req.cookies.auth, config.get("jwtSecret"));
+    req.userId = decoded.user_id;
+    req.isAdmin = decoded.user_isAdmin;
+    if (req.cookies.auth) {
+      next();
+    } else {
+      res.redirect('/login');
+    }
+  } catch (e) {
+    res.clearCookie("auth");
     res.redirect('/login');
   }
 }

@@ -1,8 +1,11 @@
+import config from "config";
 import Product, { IProduct } from "../models/Product";
 import { Response } from "express";
 import Request from "../types/Request";
 import { dataArray, responseFunction } from "../response_builder/responsefunction";
 import responsecode from "../response_builder/responsecode";
+import Wishlist, { IWishlist } from "../models/Wishlist";
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const productController = {
@@ -74,15 +77,15 @@ const productController = {
         try {
             let products;
             if (qNew) {
-                products = await Product.find().sort({createdAt:-1}).limit(1);
+                products = await Product.find().sort({ createdAt: -1 }).limit(1);
             } else if (qCategory) {
                 products = await Product.find({
-                    categories:{
+                    categories: {
                         $in: [qCategory],
                     }
                 });
             } else {
-                products = await Product.find(); 
+                products = await Product.find();
             }
             let meta: object = { message: "Products Fetched successfully", status: "Success" };
             responseFunction(meta, products, responsecode.Success, res);
@@ -90,7 +93,44 @@ const productController = {
             let meta: object = { message: "Server error", status: "Failed" };
             responseFunction(meta, dataArray, responsecode.Internal_Server_Error, res);
         }
-    }
+    },
+
+    addToWishlist: async function addToWishlist(req: Request, res: Response) {
+        const decoded = jwt.verify(req.cookies.auth, config.get('jwtSecret'));
+        let wishlist: any = await Wishlist.findOne({ userId:req.userId,productId: req.params.id })
+        try {
+            if (!wishlist) {
+                let product: IProduct = await Product.findById(req.params.id);
+                let savedWishlist: any = new Wishlist({
+                    userId: decoded.user_id,
+                    productId: product.id,
+                    title: product.title,
+                    img: product.img,
+                    price: product.price
+                })
+                await savedWishlist.save();
+                req.flash('msg', 'product added to wishlist');
+                res.redirect('/wishlist');
+            } else {
+                req.flash('msg', 'product already in wishlist');
+                res.redirect('/wishlist');
+            }
+        } catch (error) {
+            req.flash('msg', 'Server error');
+            res.redirect('/');
+        }
+    },
+
+    deleteFromWishlist: async function deleteFromWishlist(req: Request, res: Response) {
+        try {
+            await Wishlist.findByIdAndDelete(req.params.id);
+            req.flash('msg', 'product removed from wishlist');
+            res.redirect('/');
+        } catch (error) {
+            req.flash('msg', 'Server error');
+            res.redirect('/');
+        }
+    },
 }
 
 export default productController;

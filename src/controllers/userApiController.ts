@@ -190,24 +190,24 @@ const userController = {
                         const hashed = await bcrypt.hash(req.body.newPassword, salt);
                         await User.updateOne({ "_id": decoded.user_id }, { $set: { "password":hashed}});
                         //await mailService(user.email, user.userName, req.body.newPassword);
-                        req.flash('msg', 'Password Updated Successfully');
+                        req.flash('msg', 'Password Updated Successfully! please login again with new credentials');
                         res.clearCookie("auth");
                         res.redirect('/login');
                     } else {
                         req.flash('msg', 'your new password and confirm password not match');
-                        res.redirect('/updatepassword');
+                        res.redirect('/profile');
                     }
                 } else {
                     req.flash('msg', 'your current password is wrong');
-                    res.redirect('/updatepassword');
+                    res.redirect('/profile');
                 }
             } else {
                 req.flash('msg', 'user not found');
-                res.redirect('/updatepassword');
+                res.redirect('/profile');
             }
         } catch (error) {
             req.flash('msg', 'Server error');
-            res.redirect('/updatepassword');
+            res.redirect('/profile');
         }
     }
 }

@@ -1,11 +1,15 @@
 import { Router, Response } from "express";
+import config from "config";
 import userController from "../controllers/userApiController";
 import { ValidateToken, ValidateTokenAndAdmin, ValidateTokenAndAuthorization, authenticate, unauthenticate } from "../middleware/authenticate";
+import Product from "../models/Product";
+import User from "../models/User";
+const jwt = require('jsonwebtoken');
 const router: Router = Router();
 
-//server started and api running
-router.get('/', unauthenticate, (req, res) => {
-    res.render('home.ejs');
+router.get('/', unauthenticate, async (req, res) => {
+    let products: any = await Product.find();
+    res.render('home.ejs', { products: products });
 });
 
 router.get('/register', authenticate, (req, res) => {
@@ -20,11 +24,17 @@ router.get('/login', authenticate, (req, res) => {
 
 router.post('/login', authenticate, userController.login);
 
-router.get('/updatepassword',unauthenticate, (req, res) => {
+router.get('/profile', unauthenticate, async (req, res) => {
+    const decoded = jwt.verify(req.cookies.auth, config.get('jwtSecret'));  
+    let user: any = await User.findById(decoded.user_id);
+    res.render('user/profile.ejs',{user:user});
+});
+
+router.get('/updatepassword', unauthenticate, (req, res) => {
     res.render('user/updatepassword.ejs');
 });
 
-router.post('/updatepassword',unauthenticate, userController.forgotPassword);
+router.post('/updatepassword', unauthenticate, userController.forgotPassword);
 
 router.get('/logout', (req, res) => {
     res.clearCookie("auth");
