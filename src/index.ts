@@ -4,6 +4,7 @@ import user from "./routes/user";
 import product from "./routes/product";
 import cart from "./routes/cart";
 import order from "./routes/order";
+import admin from "./routes/admin";
 import flash from "express-flash";
 import stripe from "./routes/stripe";
 const session = require('express-session');
@@ -36,8 +37,9 @@ app.use('/static', express.static('public'));
 app.use('/', user);
 app.use('/', product);
 app.use('/', cart);
-app.use('/api/order', order);
 app.use('/', stripe);
+app.use('/', order);
+app.use('/', admin);
 
 //start the server
 const server = app.listen(process.env.PORT || 3000, () =>

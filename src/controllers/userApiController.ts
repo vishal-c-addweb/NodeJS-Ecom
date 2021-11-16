@@ -63,7 +63,11 @@ const userController = {
                     // responseFunction(meta, data, responsecode.Success, res);
                     res.cookie('auth', token);
                     req.flash('msg', 'logged in successfully');
-                    res.redirect('/');
+                    if (user.isAdmin) {
+                        res.redirect('/admin');
+                    } else {
+                        res.redirect('/');
+                    }
                 } else {
                     // let meta: object = { message: "wrong credential", status: "Failed" };
                     // responseFunction(meta, dataArray, responsecode.Forbidden, res);
@@ -137,13 +141,11 @@ const userController = {
     getAllUser: async function getAllUser(req: Request, res: Response) {
         const query: any = req.query.new;
         try {
-            const users: any = query ? await User.find().sort({ _id: -1 }).limit(1) : await User.find();
-            if (users) {
-                let meta: object = { message: "Users Fetched successfully", status: "Success" };
-                responseFunction(meta, users, responsecode.Success, res);
+            if (req.isAdmin) {
+                const users: any = query ? await User.find().sort({ _id: -1 }).limit(1) : await User.find();
+                res.render('admin/users.ejs',{users:users});
             } else {
-                let meta: object = { message: "user not found", status: "Failed" };
-                responseFunction(meta, dataArray, responsecode.Not_Found, res);
+                res.redirect('/');
             }
         } catch (error) {
             let meta: object = { message: "Server error", status: "Failed" };

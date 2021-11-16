@@ -13,41 +13,66 @@
                             <div class="p-2">
                                 <h4>Shopping cart</h4>
                             </div>
-                            <% if (carts.length > 0) { %>
-                                <% carts.forEach(function(cart) { %>
-                                    <div class="d-flex flex-row justify-content-between align-items-center p-2 bg-white mt-4 px-3 rounded">
-                                        <div class="mr-1"><img class="rounded" src="/static/images/<%= cart.img%>" width="70"></div>
-                                        <div class="d-flex flex-column align-items-center product-details"><span class="font-weight-bold"><%= cart.title%></span>
-                                            <div class="d-flex flex-row product-desc">
-                                                <div class="size mr-1"><span class="text-grey">Size:</span><span class="font-weight-bold">&nbsp;<%= cart.size%></span></div>
-                                                <div class="color"><span class="text-grey">Color:</span><span class="font-weight-bold">&nbsp;<%= cart.color%></span></div>
+                            <% var gtotal = 0 %>
+                                <% if (carts.length> 0) { %>
+                                    <% carts.forEach(function(cart) { %>
+                                        <div class="d-flex flex-row justify-content-between align-items-center p-2 bg-white mt-4 px-3 rounded">
+                                            <div class="mr-1"><img class="rounded" src="/static/images/<%= cart.img%>" width="70"></div>
+                                            <div class="d-flex flex-column align-items-center product-details"><span class="font-weight-bold"><%= cart.title%></span>
+                                                <div class="d-flex flex-row product-desc">
+                                                    <div class="size mr-1"><span class="text-grey">Size:</span><span class="font-weight-bold">&nbsp;<%= cart.size%></span></div>
+                                                    <div class="color"><span class="text-grey">Color:</span><span class="font-weight-bold">&nbsp;<%= cart.color%></span></div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex flex-row align-items-center qty">
+                                                <a href="/removefromcart/<%= cart.productId%>" class="fa fa-minus text-danger"></a>
+                                                <h5 class="text-grey mt-1 mr-1 ml-1">
+                                                    <%= cart.quantity%>
+                                                </h5>
+                                                <a href="/addtocart/<%= cart.productId%>" class=" fa fa-plus text-success "></a>
+                                            </div>
+                                            <div>
+                                                <h5 class="text-grey ">Rs.
+                                                    <%= cart.total%>
+                                                </h5>
+                                            </div>
+                                            <div class="d-flex align-items-center ">
+                                                <a href="/clearcart/<%= cart.productId%>" class="fa fa-trash mb-1 text-danger "></a>
                                             </div>
                                         </div>
-                                        <div class="d-flex flex-row align-items-center qty">
-                                            <a href="/removefromcart/<%= cart.productId%>" class="fa fa-minus text-danger"></a>
-                                            <h5 class="text-grey mt-1 mr-1 ml-1">
-                                                <%= cart.quantity%>
-                                            </h5>
-                                            <a href="/addtocart/<%= cart.productId%>" class=" fa fa-plus text-success "></a>
-                                        </div>
-                                        <div>
-                                            <h5 class="text-grey ">Rs.
-                                                <%= cart.total%>
-                                            </h5>
-                                        </div>
-                                        <div class="d-flex align-items-center ">
-                                            <a href="/clearcart/<%= cart.productId%>" class="fa fa-trash mb-1 text-danger "></a>
-                                        </div>
-                                    </div>
-                                    <% }); %>
-                                        <%} else{ %>
-                                            <div class="d-flex flex-row justify-content-between align-items-center p-2 bg-white mt-4 px-3 rounded ">
-                                                <h2>Your Cart is Empty</h2>
-                                            </div>
-                                            <% }%>
+                                        <% gtotal += cart.total%>
+                                            <% }); %>
+                                                <hr>
+                                                <div class="d-flex flex-row justify-content-between align-items-center p-2 bg-white mt-4 px-3 rounded">
+                                                    <div class="mr-1"><img class="rounded" src="" width="70"></div>
+                                                    <h5>Total</h5>
+                                                    <div class="d-flex flex-column align-items-center product-details"><span class="font-weight-bold"></span>
+
+                                                    </div>
+                                                    <div class="d-flex flex-row align-items-center qty ml-5">
+
+                                                    </div>
+                                                    <div>
+                                                        <h5 class="text-grey ml-5">
+                                                            Rs.
+                                                            <%= gtotal%>
+                                                        </h5>
+                                                    </div>
+                                                    <div class="d-flex align-items-center ">
+                                                        <a href="" class=""></a>
+                                                    </div>
+                                                </div>
                                                 <div class="d-flex flex-row align-items-center mt-3 p-2 bg-white rounded "><input type="text " class="form-control border-0 gift-card " placeholder="discount code/gift card "><button class="btn btn-outline-warning
+                                        btn-sm ml-2 " type="button ">Apply</button></div>
+                                                <div class="d-flex flex-row align-items-center mt-3 p-2 bg-white rounded "><a href="checkout" class="btn btn-warning btn-block btn-lg ml-2 pay-button " type="button">Proceed to Checkout</a></div>
+                                                <%} else{ %>
+                                                    <div class="d-flex flex-row justify-content-between align-items-center p-2 bg-white mt-4 px-3 rounded ">
+                                                        <h2>Your Cart is Empty</h2>
+                                                    </div>
+                                                    <div class="d-flex flex-row align-items-center mt-3 p-2 bg-white rounded "><input type="text " class="form-control border-0 gift-card " placeholder="discount code/gift card "><button disabled class="btn btn-outline-warning
                                                 btn-sm ml-2 " type="button ">Apply</button></div>
-                                                <div class="d-flex flex-row align-items-center mt-3 p-2 bg-white rounded "><a href="checkout" class="btn btn-warning btn-block btn-lg ml-2 pay-button " type="button ">Proceed to Checkout</a></div>
+                                                    <div class="d-flex flex-row align-items-center mt-3 p-2 bg-white rounded "><a href="checkout" class="btn btn-warning btn-block btn-lg ml-2 pay-button " type="button" onclick="return false;">Proceed to Checkout</a></div>
+                                                    <% }%>
                         </div>
                     </div>
                 </div>

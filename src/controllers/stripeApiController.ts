@@ -5,6 +5,7 @@ import { dataArray, responseFunction } from "../response_builder/responsefunctio
 import responsecode from "../response_builder/responsecode";
 require('dotenv').config();
 
+
 const stripeController = {
     payment: async function payment(req: Request, res: Response) {
         const newCart: ICart = new Cart(req.body);
@@ -18,6 +19,18 @@ const stripeController = {
         }
     },
 
+
+    order: async function order(req: Request, res: Response) {
+        try {
+            let cart:any = await Cart.find({userId:req.userId});
+            res.render('product/payment.ejs',{
+                key: process.env.PUBLISH_API_KEY
+            });
+        } catch (error) {
+            req.flash('msg', 'Server error');
+            res.redirect('/');
+        }
+    }
 }
 
 export default stripeController;

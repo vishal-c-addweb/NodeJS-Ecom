@@ -25,7 +25,7 @@
                                         <div class="part-1" style="
                                                 background: url('/static/images/<%= product.img %>') no-repeat center;
                                                 background-size: cover;
-                                                transition: all 0.3s;">
+                                                transition: all 0.3s;" onclick="location.href='/product/details/<%=product.id%>'">
                                             <ul>
                                                 <li><a href="/addtocart/<%= product.id%>"><i class="fas fa-shopping-cart"></i></a></li>
                                                 <li>
@@ -35,7 +35,7 @@
                                                         <a href="#" onclick="myFunction()"><i class="fas fa-heart"></i></a>
                                                     </form> -->
                                                 </li>
-                                                <li><a href="#"><i class="far fa-eye"></i></a></li>
+                                                <li><a href="/product/details/<%= product.id%>"><i class="far fa-eye"></i></a></li>
                                             </ul>
                                         </div>
                                         <div class="part-2">

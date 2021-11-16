@@ -23,16 +23,28 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <span class="rupeeIcon"><i class="fas fa-rupee-sign"></i> <%= wishlist.price %></span>
-                                                <!-- <span class="oldPrice ml-3"><del>
+                                                <br><span class="rupeeIcon">
+                                                    <% if (wishlist.instock) {%> 
+                                                    <span>instock</span>
+                                                <% } else {%><span>outofstock</span>
+                                                    <%} %>
+                                                        </span>
+                                                        <!-- <span class="oldPrice ml-3"><del>
                                                 <i class="fas fa-rupee-sign"></i> 599</del>
                                             </span> -->
                                             </div>
                                             <div class="col-md-6 deleteBtn">
-                                                <a href="/wishlist/delete/<%= wishlist.id %>" tabindex="0"><i class="far fa-trash-alt"></i></a>
+                                                <a href="/wishlist/delete/<%= wishlist.productId %>" tabindex="0"><i class="far fa-trash-alt"></i></a>
                                             </div>
                                         </div>
                                         <div class="row justify-content-md-end mb-md-4">
-                                            <a href="/addtocart/<%= wishlist.productId%>" class="redBtn btn productBtns mb-2"><i class="fas fa-shopping-cart"></i> Add to cart</a>
+                                            <div class="col-md-6"></div>
+                                            <div class="col-md-6">
+                                                <% if (wishlist.instock) {%>
+                                                    <a href="/addtocart/<%= wishlist.productId%>" class="redBtn btn productBtns mb-2"><i class="fas fa-shopping-cart"></i> Add to cart</a>
+                                                    <% } else {%><a href="/addtocart/<%= wishlist.productId%>" class="redBtn btn productBtns mb-2" onclick="return false"><i class="fas fa-shopping-cart"></i> Add to cart</a>
+                                                        <% } %>
+                                            </div>
                                         </div>
                                         <!-- <div class="row">
                                         <p class="rating"><i class="fas fa-star"></i> (4.5) <a href="#">167 Reviews</a></p>
@@ -47,5 +59,4 @@
                                         <% }%>
                     </div>
                 </section>
-
                 <%- include("../footer") -%>

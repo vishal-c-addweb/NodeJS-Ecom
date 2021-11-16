@@ -3,15 +3,31 @@ import { Response } from "express";
 import Request from "../types/Request";
 import { dataArray, responseFunction } from "../response_builder/responsefunction";
 import responsecode from "../response_builder/responsecode";
+import Cart from "../models/Cart";
 require('dotenv').config();
 
 const orderController = {
     addOrder: async function addOrder(req: Request, res: Response) {
-        const newOrder: IOrder = new Order(req.body);
         try {
+            let cart: any = await Cart.findOne({userId:req.userId});
+            let newOrder: any = new Order({
+                userId: req.userId,
+                products: cart.products,    
+                amount: req.body.total,
+                address:{
+                    name: req.body.firstName+req.body.lastName,
+                    address1: req.body.address,
+                    address2: req.body.address2,
+                    city: req.body.city,
+                    state: req.body.state,
+                    pincode: req.body.zip
+                }
+            })
             const savedOrder: any = await newOrder.save();
+            await Cart.findByIdAndDelete(cart.id);
             let meta: object = { message: "Product Ordered Successfully", status: "Success" };
-            responseFunction(meta, savedOrder, responsecode.Created, res);
+            //responseFunction(meta, savedOrder, responsecode.Created, res);
+            res.redirect('/order');
         } catch (error) {
             let meta: object = { message: "Server error", status: "Failed" };
             responseFunction(meta, dataArray, responsecode.Internal_Server_Error, res);

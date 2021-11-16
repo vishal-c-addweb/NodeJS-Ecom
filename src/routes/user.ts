@@ -1,4 +1,5 @@
 import { Router, Response } from "express";
+import Request from "../types/Request";
 import config from "config";
 import userController from "../controllers/userApiController";
 import { ValidateToken, ValidateTokenAndAdmin, ValidateTokenAndAuthorization, authenticate, unauthenticate } from "../middleware/authenticate";
@@ -25,9 +26,9 @@ router.get('/login', authenticate, (req, res) => {
 router.post('/login', authenticate, userController.login);
 
 router.get('/profile', unauthenticate, async (req, res) => {
-    const decoded = jwt.verify(req.cookies.auth, config.get('jwtSecret'));  
+    const decoded = jwt.verify(req.cookies.auth, config.get('jwtSecret'));
     let user: any = await User.findById(decoded.user_id);
-    res.render('user/profile.ejs',{user:user});
+    res.render('user/profile.ejs', { user: user });
 });
 
 router.get('/updatepassword', unauthenticate, (req, res) => {
@@ -39,6 +40,20 @@ router.post('/updatepassword', unauthenticate, userController.forgotPassword);
 router.get('/logout', (req, res) => {
     res.clearCookie("auth");
     res.redirect('/login');
+});
+
+router.post('/updateprofile',unauthenticate, async (req: Request, res) => {
+    try {
+        await User.updateOne(
+            { _id: req.userId},
+            { $set: { userName: req.body.userName, email: req.body.email } }
+        );
+        req.flash('msg', 'profile updated successfully');
+        res.redirect('/profile');
+    } catch (e) {
+        req.flash('msg', 'server error');
+        res.redirect('/profile');
+    }
 });
 
 router.get('/find/:id', ValidateToken, userController.getUser);

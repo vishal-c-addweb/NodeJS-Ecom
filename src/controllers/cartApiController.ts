@@ -6,30 +6,44 @@ import responsecode from "../response_builder/responsecode";
 import Product, { IProduct } from "../models/Product";
 require('dotenv').config();
 
+
 const cartController = {
     addToCart: async function addToCart(req: Request, res: Response) {
-        const cart: any = await Cart.findOne({ userId: req.userId, productId: req.params.id });
+        let cart: any = await Cart.findOne({ userId:req.userId })
         try {
             if (!cart) {
-                let product: IProduct = await Product.findById(req.params.id);
                 let savedCart: any = new Cart({
                     userId: req.userId,
-                    productId: product.id,
-                    title: product.title,
-                    img: product.img,
-                    color: product.color,
-                    size: product.size,
-                    price: product.price,
-                    total: product.price
+                    products: [{
+                        productId: req.params.id,
+                        quantity: 1
+                    }]
                 })
                 await savedCart.save();
-                req.flash('msg', 'product added to cart');
+                req.flash('msg', 'product added to wishlist');
                 res.redirect('/cart');
             } else {
-                let quantity = cart.quantity + 1;
-                let total = cart.price * quantity;
-                await Cart.findOneAndUpdate({ _id: cart.id }, { $set: { quantity: quantity, total: total } });
-                res.redirect('/cart');
+                let products = cart.products;
+                let a = [];
+                for (let i = 0; i < products.length; i++) {
+                    a.push(products[i].productId);
+                    if (products[i].productId === req.params.id) {
+                        let quantity = products[i].quantity + 1;
+                        await Cart.updateOne(
+                            { userId: req.userId},
+                            { $set: { ['products.'+i]: { productId: req.params.id,quantity:quantity } } }
+                        );
+                        res.redirect('/cart');
+                    }
+                }
+                if (!a.includes(req.params.id)) {
+                    await Cart.updateOne(
+                        {_id:cart.id},
+                        {$push:{products:[{productId: req.params.id,quantity: 1}]}}
+                    );
+                    req.flash('msg', 'product added to cart');
+                    res.redirect('/cart');
+                }
             }
         } catch (error) {
             req.flash('msg', 'Server error');
@@ -38,16 +52,27 @@ const cartController = {
     },
 
     removeFromCart: async function removeFromCart(req: Request, res: Response) {
-        const cart: any = await Cart.findOne({ userId: req.userId, productId: req.params.id });
         try {
-            let quantity = cart.quantity - 1;
-            let total = cart.price * quantity;
-            if (quantity > 0) {
-                await Cart.findOneAndUpdate({ _id: cart.id }, { $set: { quantity: quantity, total: total } });
-            } else {
-                await Cart.findByIdAndDelete({ _id: cart.id });
+            let cart: any = await Cart.findOne({ userId: req.userId });
+            let products = cart.products;
+            for (let i = 0; i < products.length; i++) {
+                if (products[i].productId === req.params.id) {
+                    let quantity: number = products[i].quantity - 1;
+                    if (quantity > 0) {
+                        await Cart.updateOne(
+                            { userId: req.userId},
+                            { $set: { ['products.'+i]: { productId: req.params.id,quantity:quantity } } }
+                        );
+                        res.redirect('/cart');
+                    } else {
+                        await Cart.updateOne(
+                            { userId: req.userId },
+                            { $pull: { 'products': { productId: req.params.id } } }
+                        );
+                        res.redirect('/cart');
+                    }
+                }
             }
-            res.redirect('/cart');
         } catch (error) {
             req.flash('msg', 'Server error');
             res.redirect('/');
@@ -55,9 +80,11 @@ const cartController = {
     },
     
     clearCart: async function clearCart(req: Request, res: Response) {
-       const cart: any = await Cart.findOne({ userId: req.userId, productId: req.params.id });
         try {
-            await Cart.findByIdAndDelete({ _id: cart.id });
+            await Cart.updateOne(
+                { userId: req.userId },
+                { $pull: { 'products': { productId: req.params.id } } }
+            );
             res.redirect('/cart');
         } catch (error) {
             req.flash('msg', 'Server error');

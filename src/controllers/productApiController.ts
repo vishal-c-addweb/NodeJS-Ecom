@@ -10,20 +10,35 @@ require('dotenv').config();
 
 const productController = {
     addProduct: async function addProduct(req: Request, res: Response) {
-        const newProduct: IProduct = new Product(req.body);
         try {
-            let product: any = await Product.findOne({ title: req.body.title });
-            if (!product) {
-                const savedProduct: any = await newProduct.save();
-                let meta: object = { message: "Product save Successfully", status: "Success" };
-                responseFunction(meta, savedProduct, responsecode.Created, res);
-            } else {
-                let meta: object = { message: "Product Already Register", status: "Failed" };
-                responseFunction(meta, dataArray, responsecode.Forbidden, res);
+            if (req.isAdmin) {
+                let product: any = await Product.findOne({ title: req.body.title });
+                if (!product) {
+                    const newProduct: IProduct = new Product({
+                        title: req.body.title,
+                        desc: req.body.desc,
+                        img: req.file.filename,
+                        categories: req.body.categories,
+                        size: req.body.size,
+                        color: req.body.color,
+                        price: req.body.price
+                    });
+                    const savedProduct: any = await newProduct.save();
+                    req.flash('msg','product successfully added');
+                    res.redirect('/admin/products');
+                } else {
+                    req.flash('msg', 'Product Already Register');
+                    res.redirect('/');
+                }
+            }
+            else {
+                res.redirect('/');
             }
         } catch (error) {
             let meta: object = { message: "Server error", status: "Failed" };
             responseFunction(meta, dataArray, responsecode.Internal_Server_Error, res);
+            req.flash('msg', 'server error');
+            res.redirect('/');
         }
     },
 
@@ -46,12 +61,17 @@ const productController = {
 
     deleteProduct: async function deleteProduct(req: Request, res: Response) {
         try {
-            await Product.findByIdAndDelete(req.params.id);
-            let meta: object = { message: "Product Deleted successfully", status: "Success" };
-            responseFunction(meta, dataArray, responsecode.Success, res);
+            if (req.isAdmin) {
+                await Product.findByIdAndDelete(req.params.id);
+                req.flash('msg','Product Deleted Successfully')
+                res.redirect('/admin/products')
+            }
+            else {
+                res.redirect('/');
+            }
         } catch (error) {
-            let meta: object = { message: "Server error", status: "Failed" };
-            responseFunction(meta, dataArray, responsecode.Internal_Server_Error, res);
+            req.flash('msg','server error')
+            res.redirect('/admin/products')
         }
     },
 
@@ -76,19 +96,23 @@ const productController = {
         const qCategory = req.query.category;
         try {
             let products;
-            if (qNew) {
-                products = await Product.find().sort({ createdAt: -1 }).limit(1);
-            } else if (qCategory) {
-                products = await Product.find({
-                    categories: {
-                        $in: [qCategory],
-                    }
-                });
-            } else {
-                products = await Product.find();
+            if (req.isAdmin) {
+                if (qNew) {
+                    products = await Product.find().sort({ createdAt: -1 }).limit(1);
+                } else if (qCategory) {
+                    products = await Product.find({
+                        categories: {
+                            $in: [qCategory],
+                        }
+                    });
+                } else {
+                    products = await Product.find();
+                }
+                res.render('admin/products.ejs', { products: products });
             }
-            let meta: object = { message: "Products Fetched successfully", status: "Success" };
-            responseFunction(meta, products, responsecode.Success, res);
+            else {
+                res.redirect('/');
+            }
         } catch (error) {
             let meta: object = { message: "Server error", status: "Failed" };
             responseFunction(meta, dataArray, responsecode.Internal_Server_Error, res);
@@ -96,24 +120,37 @@ const productController = {
     },
 
     addToWishlist: async function addToWishlist(req: Request, res: Response) {
-        const decoded = jwt.verify(req.cookies.auth, config.get('jwtSecret'));
-        let wishlist: any = await Wishlist.findOne({ userId:req.userId,productId: req.params.id })
+        let wishlist: any = await Wishlist.findOne({ userId: req.userId })
         try {
             if (!wishlist) {
                 let product: IProduct = await Product.findById(req.params.id);
                 let savedWishlist: any = new Wishlist({
-                    userId: decoded.user_id,
-                    productId: product.id,
-                    title: product.title,
-                    img: product.img,
-                    price: product.price
+                    userId: req.userId,
+                    products: [{
+                        productId: product.id
+                    }]
                 })
                 await savedWishlist.save();
                 req.flash('msg', 'product added to wishlist');
                 res.redirect('/wishlist');
             } else {
-                req.flash('msg', 'product already in wishlist');
-                res.redirect('/wishlist');
+                let products = wishlist.products;
+                let a = [];
+                for (let i = 0; i < products.length; i++) {
+                    a.push(products[i].productId);
+                    if (products[i].productId === req.params.id) {
+                        req.flash('msg', 'product already in wishlist');
+                        res.redirect('/wishlist');
+                    }
+                }
+                if (!a.includes(req.params.id)) {
+                    await Wishlist.updateOne(
+                        { _id: wishlist.id },
+                        { $push: { products: [{ productId: req.params.id }] } }
+                    );
+                    req.flash('msg', 'product added to wishlist');
+                    res.redirect('/wishlist');
+                }
             }
         } catch (error) {
             req.flash('msg', 'Server error');
@@ -123,12 +160,21 @@ const productController = {
 
     deleteFromWishlist: async function deleteFromWishlist(req: Request, res: Response) {
         try {
-            await Wishlist.findByIdAndDelete(req.params.id);
-            req.flash('msg', 'product removed from wishlist');
-            res.redirect('/');
+            let wishlist: any = await Wishlist.findOne({ userId: req.userId });
+            let products = wishlist.products;
+            for (let i = 0; i < products.length; i++) {
+                if (products[i].productId === req.params.id) {
+                    await Wishlist.updateOne(
+                        { userId: req.userId },
+                        { $pull: { 'products': { productId: req.params.id } } }
+                    );
+                    req.flash('msg', 'product removed from wishlist');
+                    res.redirect('/wishlist');
+                }
+            }
         } catch (error) {
             req.flash('msg', 'Server error');
-            res.redirect('/');
+            res.redirect('/wishlist');
         }
     },
 }

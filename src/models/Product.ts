@@ -10,7 +10,12 @@ import mongoose from "mongoose";
  * @param size:string
  * @param color:string
  * @param price:number
+ * @param instock:boolean
  */
+
+export interface MulterRequest extends Request {
+    file: any;
+}
 
 export interface IProduct extends Document {
     title: string;
@@ -20,6 +25,7 @@ export interface IProduct extends Document {
     size: string;
     color: string;
     price: number;
+    instock:boolean;
 }
 
 const productSchema: Schema = new Schema({
@@ -30,6 +36,7 @@ const productSchema: Schema = new Schema({
     size: { type: String },
     color: { type: String },
     price: { type: Number, required: true },
+    instock: { type: Boolean, default: true},
 });
 
 const Product = mongoose.model<IProduct>("Product", productSchema);
