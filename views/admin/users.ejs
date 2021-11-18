@@ -27,7 +27,6 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Role</th>
-                        <th>Edit</th>
                         <th>Delete</th>
                     </tr>
                 </thead>
@@ -49,9 +48,6 @@
                                         User
                                     </td>
                                     <% }%>
-                                        <td>
-                                            <a href="/admin/users/update/<%= user.id %>">Edit</a>
-                                        </td>
                                         <td><a href="/admin/users/delete/<%= user.id %>">Delete</a></td>
                         </tr>
                         <% }); %>

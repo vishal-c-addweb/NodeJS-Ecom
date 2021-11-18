@@ -25,6 +25,7 @@ export interface IProduct extends Document {
     size: string;
     color: string;
     price: number;
+    availableStock: number;
     instock:boolean;
 }
 
@@ -36,6 +37,7 @@ const productSchema: Schema = new Schema({
     size: { type: String },
     color: { type: String },
     price: { type: Number, required: true },
+    availableStock: { type: Number, required: true },
     instock: { type: Boolean, default: true},
 });
 

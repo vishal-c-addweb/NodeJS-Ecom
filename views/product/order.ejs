@@ -29,7 +29,9 @@
                                         <% orders.forEach(function(order) { %>
                                             <tr>
                                                 <td>
-                                                    <%= order.id%>
+                                                    <a href="/trackorder/<%=order.id%>">
+                                                        <%=order.id%>
+                                                    </a>
                                                 </td>
                                                 <td>
                                                     <a href="#"><img src="https://bootdey.com/img/Content/avatar/avatar6.png" style="height: 20px;width: 20px;" class="avatar" alt="Avatar"> Michael Holz</a>
@@ -60,4 +62,3 @@
                     </div>
                 </div>
                 <%- include("../footer") -%>
-                    <%- include("../footer") -%>

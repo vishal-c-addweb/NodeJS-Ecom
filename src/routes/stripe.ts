@@ -6,6 +6,7 @@ import Product from "../models/Product";
 import Cart from "../models/Cart";
 const router: Router = Router();
 require('dotenv').config();
+const stripe = require("stripe")(process.env.STRIPE_API_KEY);
 
 router.get('/checkout', unauthenticate, async (req: Request, res) => {
     let cart: any = await Cart.findOne({ userId: req.userId });
@@ -43,15 +44,47 @@ router.post('/order', unauthenticate, stripeController.order);
 
 router.get('/payment', unauthenticate, async (req: Request, res) => {
     let cart: any = await Cart.findOne({ userId: req.userId });
-    if (cart && cart.length > 0) {
+    if (cart) {
         res.render('product/payment.ejs', {
             key: process.env.PUBLISH_API_KEY
         });
     } else {
-        res.redirect('/cart');
+        res.redirect("/");
     }
 });
 
-router.post('/payment', stripeController.payment);
+router.post('/payment/stripe', async (req:Request,res) => {
+    stripe.customers.create({
+        email: req.body.stripeEmail,
+        source: req.body.stripeToken,
+        name: 'Gourav Hammad',
+        address: {
+            line1: 'TC 9/4 Old MES colony',
+            postal_code: '452331',
+            city: 'Indore',
+            state: 'Madhya Pradesh',
+            country: 'India',
+        }
+    })
+    .then((customer: any) => {
+        return stripe.charges.create({
+            amount: req.body.amount,     // Charing Rs 25
+            description: 'New Creation Shoes',
+            currency: 'INR',
+            customer: customer.id
+        });
+    })
+    .then((charge: any) => {
+        // let meta: object = { message: "Success", status: "Success" };
+        // responseFunction(meta, charge, responsecode.Success, res);
+        res.redirect('/');
+    })
+    .catch((err: any) => {
+        console.log(err);    
+        // let meta: object = { message: "Server error", status: "Failed" };
+        // responseFunction(meta, dataArray, responsecode.Internal_Server_Error, res);
+        res.redirect('back');
+    });
+});
 
 export default router;

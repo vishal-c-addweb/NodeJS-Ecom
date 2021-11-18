@@ -7,6 +7,7 @@ import mongoose from "mongoose";
  * @param products:array
  * @param amount:number
  * @param address:object
+ * @param paymentStatus:string
  * @param status:string
  * @param timestamps:string    
  */
@@ -15,11 +16,11 @@ export interface IOrder extends Document {
     userId: string;
     products: [{
         productId: string,
-        quantity: number,
-        _id: false
+        quantity: number
     }];
     amount: number;
     address: object;
+    paymentStatus: string;
     status: string;
 }
 
@@ -32,7 +33,8 @@ const orderSchema: Schema = new Schema({
     }],
     amount: { type: Number, required: true },
     address: { type: Object, required: true },
-    status: { type: String, default: "pending" },
+    paymentStatus: { type: String },
+    status: { type: String, default: "Placed" },
 }, { timestamps: true });
 
 const Order = mongoose.model<IOrder>("Order", orderSchema);

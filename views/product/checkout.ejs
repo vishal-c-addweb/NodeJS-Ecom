@@ -125,10 +125,22 @@
                                                 Zip code required.
                                             </div>
                                         </div>
+                                        <hr>
+                                        <h4 class="mb-3">Payment</h4>
+                                        <div class="d-block my-3">
+                                            <div class="custom-control custom-radio">
+                                                <input id="credit" name="paymentMethod" value="cod" type="radio" class="custom-control-input" checked="" required="">
+                                                <label class="custom-control-label" for="credit">COD</label>
+                                            </div>
+                                            <div class="custom-control custom-radio">
+                                                <input id="paypal" name="paymentMethod" value="stripe" type="radio" class="custom-control-input" required="">
+                                                <label class="custom-control-label" for="paypal">STRIPE</label>
+                                            </div>
+                                        </div>
                                     </div>
                                     <input type="hidden" value="<%= total%>" name="total" id="total">
                                     <hr class="mb-4">
-                                    <button class="btn btn-primary btn-lg btn-block" type="submit">Continue to payment</button>
+                                    <button class="btn btn-primary btn-lg btn-block" type="submit">Place Order</button>
                                 </form>
                             </div>
                         </div>

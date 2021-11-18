@@ -72,10 +72,20 @@
                 </div>
                 <div class="row">
                     <div class="col-25">
+                        <label for="lname">PRODUCT STOCK</label>
+                    </div>
+                    <div class="col-75">
+                        <input class="form-control" type="number" id="product availableStock" name="availableStock" placeholder="Product availableStock">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
                         <label for="lname">PRODUCT IMAGE</label>
                     </div>
                     <div class="col-75">
-                        <input class="form-control" value="<%= product.img %>" accept="image/*" type="file" id="product image" name="img" placeholder="Product Image">
+                        <input class="form-control" type="file" id="product image" name="img" placeholder="Product Image" required>
+                        <br>
+                        <img src="/static/images/<%= product.img%>" alt="">
                     </div>
                 </div>
                 <br>

@@ -113,11 +113,11 @@ const userController = {
     deleteUser: async function deleteUser(req: Request, res: Response) {
         try {
             await User.findByIdAndDelete(req.params.id);
-            let meta: object = { message: "User Deleted successfully", status: "Success" };
-            responseFunction(meta, dataArray, responsecode.Success, res);
+            req.flash('msg','User Deleted successfully');
+            res.redirect('/admin/users');
         } catch (error) {
-            let meta: object = { message: "Server error", status: "Failed" };
-            responseFunction(meta, dataArray, responsecode.Internal_Server_Error, res);
+            req.flash('msg','Server error');
+            res.redirect('/admin/users');
         }
     },
 

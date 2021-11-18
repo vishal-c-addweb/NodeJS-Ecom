@@ -9,11 +9,12 @@
             <%- include("../navbar") -%>
                 <section class="wishlist mt-4">
                     <div class="container">
-                        <h4 class="mb-4">Payment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <script onclick="myFunction2()" src="//checkout.stripe.com/v2/checkout.js" class="stripe-button align-items-center" data-key="<%= key %>" data-amount="2500" data-currency="inr" data-name="Vishal Kumar" data-description="New Creation Store" data-locale="auto">
+                        <h3>Welcome to Payment Gateway</h3>
+                        <form action="payment/stripe" method="POST">
+                            <input type="hidden" name="amount" id="amount" value="<%= amount %>">
+                            <script src="//checkout.stripe.com/v2/checkout.js" class="stripe-button" data-key="<%= key %>" data-currency="inr" data-name="Vishal Kumar" data-description="New Creation Store" data-locale="auto">
                             </script>
-                            <a href="/order" class="btn btn-primary">COD</a>
-                        </h4>
+                        </form>
                     </div>
                 </section>
                 <%- include("../footer") -%>

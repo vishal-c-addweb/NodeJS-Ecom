@@ -10,6 +10,7 @@ const orderController = {
     addOrder: async function addOrder(req: Request, res: Response) {
         try {
             let cart: any = await Cart.findOne({userId:req.userId});
+            let paymentMethod = req.body.paymentMethod === "cod" ? "cod" : "pending";
             let newOrder: any = new Order({
                 userId: req.userId,
                 products: cart.products,    
@@ -21,13 +22,18 @@ const orderController = {
                     city: req.body.city,
                     state: req.body.state,
                     pincode: req.body.zip
-                }
+                },
+                paymentStatus: paymentMethod
             })
             const savedOrder: any = await newOrder.save();
             await Cart.findByIdAndDelete(cart.id);
-            let meta: object = { message: "Product Ordered Successfully", status: "Success" };
-            //responseFunction(meta, savedOrder, responsecode.Created, res);
-            res.redirect('/order');
+            if (req.body.paymentMethod === "stripe") {
+                res.render('product/payment.ejs',{
+                    key: process.env.PUBLISH_API_KEY,orderId:savedOrder.id,amount:savedOrder.amount
+                });
+            } else {
+                res.redirect('/order');
+            }
         } catch (error) {
             let meta: object = { message: "Server error", status: "Failed" };
             responseFunction(meta, dataArray, responsecode.Internal_Server_Error, res);

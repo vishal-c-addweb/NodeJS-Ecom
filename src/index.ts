@@ -9,8 +9,9 @@ import flash from "express-flash";
 import stripe from "./routes/stripe";
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 const app = express();
+const Emitter = require('events');
 require("dotenv").config();
 
 //db connection
@@ -21,6 +22,9 @@ app.set('view-engine', 'ejs');
 app.use(cookieParser())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+const eventEmitter = new Emitter();
+
+app.set('eventEmitter',eventEmitter);
 app.use(
     session({
       secret: process.env.PASS_SECRET,
@@ -45,3 +49,14 @@ app.use('/', admin);
 const server = app.listen(process.env.PORT || 3000, () =>
     console.log(`server started on the port ${process.env.PORT || 3000}`)
 );
+
+const io = require('socket.io')(server);
+io.on('connection',(socket: any) => {
+  socket.on('join',(orderId: any) => {
+    socket.join(orderId);
+  });
+}); 
+
+eventEmitter.on('orderUpdated',(data:any) => {
+  io.to(`order_${data.id}`).emit('orderUpdated',data);
+});

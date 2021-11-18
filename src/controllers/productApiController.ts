@@ -21,7 +21,8 @@ const productController = {
                         categories: req.body.categories,
                         size: req.body.size,
                         color: req.body.color,
-                        price: req.body.price
+                        price: req.body.price,
+                        availableStock: req.body.availableStock
                     });
                     const savedProduct: any = await newProduct.save();
                     req.flash('msg','product successfully added');
@@ -43,19 +44,26 @@ const productController = {
     },
 
     updateProduct: async function updateProduct(req: Request, res: Response) {
+        console.log(req.file.filename);
         try {
             const updatedProduct: IProduct = await Product.findByIdAndUpdate(
                 req.params.id,
                 {
-                    $set: req.body,
-                },
-                { new: true }
+                    title: req.body.title,
+                    desc: req.body.desc,
+                    img: req.file.filename,
+                    categories: req.body.categories,
+                    size: req.body.size,
+                    color: req.body.color,
+                    price: req.body.price,
+                    availableStock: req.body.availableStock
+                }
             );
-            let meta: object = { message: "Product Updated Successfully", status: "Success" };
-            responseFunction(meta, updatedProduct, responsecode.Created, res);
+            req.flash('msg','product successfully updated');
+            res.redirect('/admin/products');
         } catch (error) {
-            let meta: object = { message: "Server error", status: "Failed" };
-            responseFunction(meta, dataArray, responsecode.Internal_Server_Error, res);
+            console.log(error);
+            res.redirect('back');
         }
     },
 
